@@ -21,6 +21,82 @@ const ids = (device: DeviceEntity) =>
     getDeviceModel(device).controls.map((control) => control.id);
 
 describe("capability boundaries", () => {
+    it("shows one-shot actions as ready without treating timestamps as active state", () => {
+        for (const domain of ["scene", "button", "input_button"]) {
+            expect(
+                getDeviceModel(entity(domain, {}, "2026-09-06T06:00:00Z")),
+            ).toMatchObject({
+                stateLabel: "Ready",
+                active: false,
+                available: true,
+            });
+            const fresh = entity(domain, {}, "unknown");
+            expect(getDeviceModel(fresh)).toMatchObject({
+                active: false,
+                available: true,
+                stateLabel:
+                    domain === "scene"
+                        ? "Not activated yet"
+                        : "Not pressed yet",
+            });
+            expect(
+                buildDeviceCommand(
+                    fresh,
+                    domain === "scene" ? "turn_on" : "press",
+                ).confirmation,
+            ).toBeTruthy();
+            expect(
+                getDeviceModel(entity(domain, {}, "unavailable")),
+            ).toMatchObject({
+                stateLabel: "Unavailable",
+                available: false,
+                active: false,
+            });
+        }
+    });
+    it("shows brightness only for active dimmable lights with reported brightness", () => {
+        const attributes = {
+            brightness: 128,
+            supported_color_modes: ["brightness"],
+        };
+        expect(getDeviceModel(entity("light", attributes)).stateLabel).toBe(
+            "50%",
+        );
+        expect(
+            getDeviceModel(entity("light", attributes, "off")).stateLabel,
+        ).toBe("Off");
+        expect(
+            getDeviceModel(entity("light", { brightness: 128 })).stateLabel,
+        ).toBe("On");
+    });
+    it("shows reported climate targets and modes without assuming Celsius", () => {
+        expect(
+            getDeviceModel(entity("climate", { temperature: 22 }, "heat"))
+                .stateLabel,
+        ).toBe("22° · Heat");
+        expect(
+            getDeviceModel(
+                entity(
+                    "climate",
+                    { temperature: 72, temperature_unit: "°F" },
+                    "cool",
+                ),
+            ).stateLabel,
+        ).toBe("72°F · Cool");
+        expect(
+            getDeviceModel(
+                entity(
+                    "climate",
+                    { target_temp_low: 18, target_temp_high: 24 },
+                    "heat_cool",
+                ),
+            ).stateLabel,
+        ).toBe("18–24° · Heat cool");
+        expect(
+            getDeviceModel(entity("climate", { temperature: 22 }, "off"))
+                .stateLabel,
+        ).toBe("Off");
+    });
     it("keeps unknown entities inspectable without inventing actions", () => {
         for (const domain of [
             "sensor",
@@ -107,6 +183,69 @@ describe("capability boundaries", () => {
 });
 
 describe("validated service payloads", () => {
+    it("round-trips UTC datetime states through browser local inputs as absolute instants", () => {
+        const instant = new Date(2026, 8, 6, 12, 30, 45).toISOString();
+        const device = entity("datetime", {}, instant);
+        const control = getDeviceModel(device).controls[0];
+        expect(control).toMatchObject({
+            kind: "text",
+            inputType: "datetime-local",
+            value: "2026-09-06T12:30:45",
+        });
+        expect(
+            buildDeviceCommand(device, "datetime", "2026-09-06T12:30:45").data,
+        ).toEqual({ datetime: instant });
+        expect(
+            buildDeviceCommand(device, "datetime", "2026-09-06T12:30").data,
+        ).toEqual({ datetime: new Date(2026, 8, 6, 12, 30).toISOString() });
+        expect(() =>
+            buildDeviceCommand(device, "datetime", "2026-02-30T12:30"),
+        ).toThrow("valid date and time");
+        expect(() => buildDeviceCommand(device, "datetime", instant)).toThrow(
+            "valid date and time",
+        );
+        // Helpers represent HA-local wall clock time, not an absolute timestamp.
+        expect(
+            buildDeviceCommand(
+                entity("input_datetime", { has_date: true, has_time: true }),
+                "datetime",
+                "2026-09-06T12:30",
+            ).data,
+        ).toEqual({ datetime: "2026-09-06T12:30" });
+    });
+    it("preserves numeric siren tone IDs and advertised dictionary labels", () => {
+        const mapped = entity("siren", {
+            supported_features: 5,
+            available_tones: { 1: "Fire alarm", 2: "Door chime" },
+        });
+        expect(
+            getDeviceModel(mapped).controls.find(
+                (control) => control.id === "tone",
+            ),
+        ).toMatchObject({
+            options: [
+                { label: "Fire alarm", value: "number:1" },
+                { label: "Door chime", value: "number:2" },
+            ],
+        });
+        expect(buildDeviceCommand(mapped, "tone", "number:2")).toMatchObject({
+            data: { tone: 2 },
+            confirmation: expect.any(String),
+        });
+        const mixed = entity("siren", {
+            supported_features: 5,
+            available_tones: [1, "1", "bell"],
+        });
+        expect(buildDeviceCommand(mixed, "tone", "number:1").data).toEqual({
+            tone: 1,
+        });
+        expect(buildDeviceCommand(mixed, "tone", "1").data).toEqual({
+            tone: "1",
+        });
+        expect(() => buildDeviceCommand(mapped, "tone", "number:3")).toThrow(
+            "available option",
+        );
+    });
     it("maps light percentage, Kelvin and RGB input to documented turn_on fields", () => {
         const light = entity("light", {
             supported_color_modes: ["hs", "color_temp"],

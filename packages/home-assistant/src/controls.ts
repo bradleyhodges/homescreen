@@ -87,8 +87,12 @@ const strings = (value: unknown): string[] =>
     Array.isArray(value)
         ? value.filter((item): item is string => typeof item === "string")
         : [];
+const oneShot = (domain: string) =>
+    ["scene", "button", "input_button"].includes(domain);
 const available = (entity: HassEntity) =>
-    entity.state !== "unavailable" && entity.state !== "unknown";
+    entity.state !== "unavailable" &&
+    (entity.state !== "unknown" ||
+        oneShot(entity.entity_id.split(".")[0] ?? ""));
 
 // Feature bits match homeassistant/components/<domain>/{const,__init__}.py.
 // Keep this allowlist conservative: integration-specific actions need a schema.
@@ -659,20 +663,26 @@ function definitions(entity: HassEntity): Definition[] {
             action("turn_on", "Sound siren", 1, "Sound the siren?");
             action("turn_off", "Stop siren", 2);
             if (has(1) && has(4)) {
-                select(
-                    "tone",
-                    "Sound with tone",
-                    "",
-                    a.available_tones,
-                    "turn_on",
-                    "tone",
-                );
-                const tone = result.find(
-                    ({ control }) => control.id === "tone",
-                );
-                if (tone)
-                    tone.control.confirmation =
-                        "Sound the siren with this tone?";
+                const tones = sirenTones(a.available_tones);
+                if (tones.length)
+                    result.push({
+                        control: {
+                            kind: "select",
+                            id: "tone",
+                            label: "Sound with tone",
+                            value: "",
+                            options: tones.map(({ label, value }) => ({
+                                label,
+                                value,
+                            })),
+                            confirmation: "Sound the siren with this tone?",
+                        },
+                        service: "turn_on",
+                        data: (value) => ({
+                            tone: tones.find((tone) => tone.value === value)
+                                ?.tone,
+                        }),
+                    });
             }
             if (has(1) && has(8))
                 range(
@@ -777,8 +787,8 @@ function definitions(entity: HassEntity): Definition[] {
         case "datetime":
             text(
                 "datetime",
-                "Date and time",
-                entity.state.replace(" ", "T"),
+                "Date and time (local time)",
+                localDateTime(new Date(entity.state)),
                 "set_value",
                 "datetime",
                 "datetime-local",
@@ -908,12 +918,55 @@ export function getDeviceModel(entity: HassEntity): DeviceModel {
             problem: ["Problem", "Clear"],
             connectivity: ["Connected", "Disconnected"],
             battery: ["Low battery", "Normal"],
+            battery_charging: ["Charging", "Not charging"],
+            cold: ["Cold", "Normal"],
+            heat: ["Hot", "Normal"],
+            light: ["Light detected", "Dark"],
+            moving: ["Moving", "Stopped"],
+            plug: ["Plugged in", "Unplugged"],
+            power: ["Power detected", "No power"],
+            running: ["Running", "Stopped"],
+            sound: ["Sound detected", "Quiet"],
+            tamper: ["Tampering detected", "Clear"],
+            update: ["Update available", "Up to date"],
+            vibration: ["Vibration detected", "Clear"],
         };
         const labels = states[String(a.device_class)];
         if (labels) stateLabel = labels[entity.state === "on" ? 0 : 1];
     }
     if (available(entity) && typeof a.unit_of_measurement === "string")
         stateLabel += ` ${a.unit_of_measurement}`;
+    if (available(entity) && oneShot(domain)) {
+        stateLabel =
+            entity.state === "unknown"
+                ? domain === "scene"
+                    ? "Not activated yet"
+                    : "Not pressed yet"
+                : "Ready";
+    }
+    if (
+        domain === "light" &&
+        entity.state === "on" &&
+        number(a.brightness) !== undefined &&
+        strings(a.supported_color_modes).some(
+            (mode) => !["onoff", "unknown"].includes(mode),
+        )
+    ) {
+        stateLabel = `${Math.round((Math.min(255, Math.max(0, number(a.brightness) ?? 0)) / 255) * 100)}%`;
+    }
+    if (domain === "climate" && available(entity) && entity.state !== "off") {
+        const temperature = number(a.temperature);
+        const low = number(a.target_temp_low),
+            high = number(a.target_temp_high);
+        const unit =
+            typeof a.temperature_unit === "string" ? a.temperature_unit : "°";
+        const mode = humanize(entity.state);
+        if (temperature !== undefined)
+            stateLabel = `${temperature}${unit} · ${mode}`;
+        else if (low !== undefined && high !== undefined)
+            stateLabel = `${low}–${high}${unit} · ${mode}`;
+        else stateLabel = mode;
+    }
     const model: DeviceModel = {
         id: entity.entity_id,
         domain,
@@ -924,6 +977,7 @@ export function getDeviceModel(entity: HassEntity): DeviceModel {
         stateLabel,
         active:
             available(entity) &&
+            !oneShot(domain) &&
             ![
                 "off",
                 "idle",
@@ -1080,6 +1134,19 @@ export function buildDeviceCommand(
             );
     }
     const data = definition.data?.(value) ?? {};
+    if (entity.entity_id.startsWith("datetime.") && controlId === "datetime") {
+        // HA exposes UTC states but treats naive service values as its own timezone.
+        // Preserve the instant chosen in this browser, including its UTC offset.
+        const localValue = String(value);
+        const date = new Date(localValue);
+        const normalized =
+            localValue.length === 16 ? `${localValue}:00` : localValue;
+        if (localDateTime(date) !== normalized)
+            throw new Error(
+                "Choose a date and time that exists in your local time zone.",
+            );
+        data.datetime = date.toISOString();
+    }
     if (control.codeRequired && code) data.code = code;
     if (controlId === "target_temp_low" || controlId === "target_temp_high") {
         const otherKey =
@@ -1115,4 +1182,41 @@ function validDate(value: string): boolean {
         Number.isFinite(date.getTime()) &&
         date.toISOString().slice(0, 10) === value
     );
+}
+
+function localDateTime(date: Date): string {
+    if (!Number.isFinite(date.getTime())) return "";
+    const pad = (value: number) => String(value).padStart(2, "0");
+    return `${String(date.getFullYear()).padStart(4, "0")}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+function sirenTones(
+    value: unknown,
+): { label: string; value: string; tone: string | number }[] {
+    const tones: { label: string; value: string; tone: string | number }[] = [];
+    const add = (tone: string | number, label: string) => {
+        // Numeric IDs use a separate UI key so a string "1" and number 1 stay distinct.
+        tones.push({
+            tone,
+            label,
+            value: typeof tone === "number" ? `number:${tone}` : tone,
+        });
+    };
+    if (Array.isArray(value)) {
+        for (const tone of value) {
+            if (typeof tone === "string") add(tone, humanize(tone));
+            else if (typeof tone === "number" && Number.isSafeInteger(tone))
+                add(tone, String(tone));
+        }
+    } else if (typeof value === "object" && value !== null) {
+        for (const [key, label] of Object.entries(value)) {
+            if (
+                /^-?\d+$/.test(key) &&
+                Number.isSafeInteger(Number(key)) &&
+                typeof label === "string"
+            )
+                add(Number(key), label);
+        }
+    }
+    return tones;
 }
