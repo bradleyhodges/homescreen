@@ -1,31 +1,36 @@
 {
-  "name": "home-assistant-nextjs-starter",
+  "name": "homescreen",
+  "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint ."
+  "packageManager": "pnpm@11.6.0",
+  "engines": {
+    "node": ">=24.0.0 <25",
+    "pnpm": ">=11.6.0 <12"
   },
-  "dependencies": {
-    "fuse.js": "^6.4.6",
-    "home-assistant-js-websocket": "^5.11.2",
-    "lodash": "^4.17.21",
-    "multicast-dns": "^7.2.4",
-    "next": "16.3.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "styled-components": "^5.3.3",
-    "zustand": "^3.6.5"
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "pnpm --filter @repo/web start",
+    "typecheck": "turbo run typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
+    "ui:add": "pnpm --filter @repo/components exec shadcn add"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.176",
-    "@types/multicast-dns": "^7.2.1",
-    "@types/node": "^16.11.7",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "^24.0.0",
     "@types/react": "19.2.18",
-    "babel-plugin-styled-components": "^1.13.3",
-    "eslint": "10.10.0",
+    "@types/react-dom": "19.2.7",
+    "eslint": "^9.39.0",
     "eslint-config-next": "16.3.4",
-    "typescript": "^4.4.4"
-  }
+    "jsdom": "30.0.1",
+    "prettier": "3.9.6",
+    "turbo": "2.10.12",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
+  },
+  "type": "module"
 }

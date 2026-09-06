@@ -1,4 +1,13 @@
+packages:
+  - apps/*
+  - packages/*
+
 allowBuilds:
+  "@tailwindcss/oxide": true
+  esbuild: true
+  sharp: true
   unrs-resolver: true
+
 overrides:
-  '@types/react': 19.2.18
+  "@types/react": 19.2.18
+  "@types/react-dom": 19.2.7
