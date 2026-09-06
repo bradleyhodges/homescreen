@@ -3,14 +3,14 @@
     position: relative;
     display: flex;
     align-items: center;
-    min-height: 86px;
-    border-radius: 19px;
-    background: rgb(49 23 66 / 0.38);
+    min-height: 60px;
+    border-radius: 10px;
+    background: rgb(42 20 49 / 0.34);
     color: #fff;
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
     transition:
         background 0.22s,
-        transform 0.2s;
+        transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
     isolation: isolate;
 }
 [data-category="Climate"] {
@@ -29,9 +29,9 @@
     --device-accent: #609ed6;
 }
 .home-accessory[data-active="true"] {
-    background: rgb(255 255 255 / 0.96);
+    background: rgb(255 255 255 / 0.97);
     color: #25242c;
-    box-shadow: 0 4px 14px rgb(49 23 66 / 0.06);
+    box-shadow: 0 1px 3px rgb(49 23 66 / 0.06);
 }
 .home-accessory[data-unavailable="true"] {
     opacity: 0.58;
@@ -42,10 +42,10 @@
     font: inherit;
 }
 .home-accessory-power {
-    padding: 16px 8px 16px 14px;
+    padding: 8px 0 8px 10px;
     background: transparent;
-    min-width: 58px;
-    min-height: 60px;
+    min-width: 44px;
+    min-height: 44px;
     cursor: pointer;
 }
 .home-accessory-power:disabled {
@@ -55,16 +55,16 @@
 .home-device-symbol {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: rgb(255 255 255 / 0.13);
     color: rgb(255 255 255 / 0.8);
     flex-shrink: 0;
 }
 .home-device-symbol svg {
-    width: 21px;
-    height: 21px;
+    width: 19px;
+    height: 19px;
 }
 .home-accessory[data-active="true"] .home-device-symbol,
 .home-sheet-header .home-device-symbol {
@@ -76,17 +76,17 @@
     background: none;
     flex: 1;
     min-width: 0;
-    min-height: 86px;
-    padding: 16px 16px 16px 3px;
+    min-height: 60px;
+    padding: 8px 10px 8px 8px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 3px;
+    gap: 1px;
 }
 .home-accessory-details strong {
-    font-size: 14px;
-    font-weight: 650;
+    font-size: 13px;
+    font-weight: 600;
     line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -130,14 +130,14 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: min(440px, calc(100vw - 40px));
+    width: min(380px, calc(100vw - 32px));
     max-height: calc(100dvh - 48px);
     overflow: auto;
     overscroll-behavior: contain;
-    border-radius: 32px;
-    background: #f5f4f7;
+    border-radius: 24px;
+    background: #f2f2f7;
     color: #25242c;
-    padding: 34px 26px 24px;
+    padding: 24px 18px 14px;
     box-shadow: 0 24px 100px #18112b44;
     transition:
         opacity 0.24s,
@@ -154,52 +154,53 @@
 }
 .home-sheet-close {
     position: absolute;
-    right: 13px;
-    top: 13px;
+    right: 8px;
+    top: 8px;
     display: grid;
     place-items: center;
     width: 44px;
     height: 44px;
     border-radius: 50%;
     border: 0;
-    background: #e8e6ec;
+    background: radial-gradient(circle, #e5e5ea 15px, transparent 16px);
     color: #75717d;
     cursor: pointer;
 }
 .home-sheet-close svg {
-    width: 19px;
+    width: 15px;
+    height: 15px;
 }
 .home-sheet-handle {
     display: none;
 }
 .home-sheet-header {
     text-align: center;
-    margin: 10px 0 27px;
+    margin: 4px 0 18px;
 }
 .home-sheet-header .home-device-symbol {
-    width: 66px;
-    height: 66px;
-    margin: 0 auto 15px;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 12px;
 }
 .home-sheet-header svg {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
 }
 .home-sheet-header h2 {
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1.2;
-    font-weight: 700;
+    font-weight: 650;
     letter-spacing: -0.6px;
 }
 .home-sheet-header p {
-    margin: 8px 0 0;
-    font-size: 16px;
+    margin: 4px 0 0;
+    font-size: 15px;
     color: #77717e;
 }
 .home-sheet-controls {
     display: grid;
-    gap: 2px;
-    border-radius: 18px;
+    gap: 1px;
+    border-radius: 12px;
     overflow: hidden;
     background: #fff;
 }
@@ -208,7 +209,7 @@
 .home-control-form,
 .home-range {
     background: #fff;
-    padding: 15px 17px;
+    padding: 10px 14px;
     font-size: 14px;
 }
 .home-control-row,
@@ -217,8 +218,11 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    min-height: 62px;
+    min-height: 52px;
     border-bottom: 1px solid #efedf2;
+}
+.home-control-row {
+    padding-block: 4px;
 }
 .home-control-action {
     width: 100%;
@@ -311,14 +315,14 @@
     box-shadow: 0 2px 7px #0003;
 }
 .home-range-hero .home-range-control {
-    width: 106px;
-    height: 172px;
-    margin: 18px auto 8px;
+    width: 94px;
+    height: 154px;
+    margin: 12px auto 4px;
 }
 .home-range-hero .home-range-track {
     width: 100%;
     height: 100%;
-    border-radius: 26px;
+    border-radius: 22px;
     overflow: hidden;
 }
 .home-range-hero .home-range-indicator {
@@ -353,7 +357,20 @@
     background: #f9f8fb;
 }
 .home-control-form input[type="color"] {
-    padding: 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+.home-control-form input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 4px 0;
+}
+.home-control-form input[type="color"]::-webkit-color-swatch {
+    border: 0;
+    border-radius: 8px;
+}
+.home-control-form input[type="color"]::-moz-color-swatch {
+    border: 0;
+    border-radius: 8px;
 }
 .home-apply,
 .home-secondary-button {
@@ -406,8 +423,8 @@
 }
 .home-confirmation {
     background: white;
-    border-radius: 18px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 16px;
 }
 .home-confirmation h3 {
     font-size: 18px;
@@ -430,7 +447,7 @@
     margin-top: 18px;
 }
 .home-device-info {
-    margin-top: 24px;
+    margin-top: 12px;
     font-size: 12px;
     color: #817889;
 }
@@ -464,14 +481,18 @@
 }
 @media (hover: hover) and (pointer: fine) {
     .home-accessory:hover {
-        transform: translateY(-2px);
-    }
-    .home-accessory-details:hover strong {
-        text-decoration: underline;
-        text-underline-offset: 3px;
+        filter: brightness(1.04);
     }
 }
+.home-accessory:has(button:active) {
+    transform: scale(0.975);
+}
 @media (max-width: 600px) {
+    /* Full-width sheets cover the gutter reserved by modal scroll locking. */
+    html:has(.home-sheet) {
+        /* biome-ignore lint/complexity/noImportantStyles: Overrides Base UI's inline gutter compensation for this mobile sheet only. */
+        scrollbar-gutter: auto !important;
+    }
     .home-sheet {
         top: auto;
         bottom: 0;
@@ -479,8 +500,8 @@
         transform: none;
         width: 100vw;
         max-height: 92dvh;
-        border-radius: 28px 28px 0 0;
-        padding: 30px 20px max(24px, env(safe-area-inset-bottom));
+        border-radius: 24px 24px 0 0;
+        padding: 26px 16px max(16px, env(safe-area-inset-bottom));
         transition:
             translate 0.3s,
             opacity 0.3s;
@@ -501,8 +522,8 @@
         background: #d2ccd9;
     }
     .home-accessory {
-        min-height: 88px;
-        border-radius: 17px;
+        min-height: 60px;
+        border-radius: 10px;
     }
 }
 @media (prefers-reduced-motion: reduce) {

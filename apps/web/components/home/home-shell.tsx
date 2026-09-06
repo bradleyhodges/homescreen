@@ -96,6 +96,7 @@ export function HomeShell({
                 className="home-dashboard-sidebar"
                 aria-label="Home navigation"
             >
+                <HomeClock />
                 <div className="home-dashboard-brand">
                     <span className="home-dashboard-brandmark">
                         <HouseIcon />
@@ -117,9 +118,7 @@ export function HomeShell({
                         <HouseIcon small />
                         <span>Home</span>
                     </button>
-                    <p className="home-dashboard-navlabel">
-                        Rooms & accessories
-                    </p>
+                    <p className="home-dashboard-navlabel">Rooms</p>
                     {groups.map((group) => (
                         <button
                             key={group.id}
@@ -166,27 +165,14 @@ export function HomeShell({
                 </div>
             </aside>
             <main className="home-dashboard-main">
-                <div className="home-dashboard-topline">
-                    <HomeClock />
-                    {preview && (
-                        <span className="home-dashboard-sample-label">
-                            Sample home
-                        </span>
-                    )}
-                </div>
                 <header className="home-dashboard-header">
-                    <div>
-                        <p className="home-dashboard-eyebrow">
-                            {preview
-                                ? "A little inspiration for your home"
-                                : "Everything in its place"}
-                        </p>
+                    <div className="home-dashboard-title">
                         <h1>{room?.name ?? "Home"}</h1>
-                        <p className="home-dashboard-subtitle">
-                            {preview
-                                ? "Make yourself at home. Every control is yours to try."
-                                : "Your spaces. Your devices. Right here."}
-                        </p>
+                        {preview && (
+                            <span className="home-dashboard-sample-label">
+                                Sample home
+                            </span>
+                        )}
                     </div>
                     <label className="home-dashboard-search">
                         <DeviceIcon domain="search" />
@@ -196,7 +182,7 @@ export function HomeShell({
                             onChange={(event) =>
                                 onQueryChange(event.target.value)
                             }
-                            placeholder="Find an accessory"
+                            placeholder="Search"
                             aria-label="Find an accessory"
                         />
                     </label>
@@ -216,31 +202,36 @@ export function HomeShell({
                         ))}
                     </select>
                 </div>
-                <div
-                    className="home-dashboard-filters"
-                    role="group"
-                    aria-label="Accessory categories"
-                >
-                    {categories.map((item) => (
-                        <button
-                            type="button"
-                            key={item.id}
-                            aria-pressed={category === item.id}
-                            onClick={() => onCategoryChange(item.id)}
-                        >
-                            {item.name}
-                        </button>
-                    ))}
-                </div>
-                {preview && (
-                    <div className="home-dashboard-preview-note">
-                        <span>
-                            Explore a sample home. Changes stay on this page and
-                            never reach real devices.
-                        </span>
-                        {toolbar}
+                <div className="home-dashboard-controls-bar">
+                    <div
+                        className="home-dashboard-filters"
+                        role="group"
+                        aria-label="Accessory categories"
+                    >
+                        {categories.map((item) => (
+                            <button
+                                type="button"
+                                key={item.id}
+                                aria-pressed={category === item.id}
+                                onClick={() => onCategoryChange(item.id)}
+                            >
+                                <DeviceIcon
+                                    domain={
+                                        {
+                                            all: "home",
+                                            lighting: "light",
+                                            climate: "climate",
+                                            security: "lock",
+                                            media: "media_player",
+                                        }[item.id]
+                                    }
+                                />
+                                {item.name}
+                            </button>
+                        ))}
                     </div>
-                )}
+                    {preview && toolbar}
+                </div>
                 {reconnecting && (
                     <div className="home-dashboard-notice" role="status">
                         Reconnecting to Home Assistant. Controls will be
@@ -256,7 +247,7 @@ export function HomeShell({
                 <footer className="home-dashboard-footer">
                     <span>
                         {preview
-                            ? "Built for the way you live."
+                            ? "Preview only · Changes stay here. No real devices connected."
                             : "Home Assistant · Live updates"}
                     </span>
                     {!preview && (
