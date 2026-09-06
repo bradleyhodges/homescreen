@@ -24,6 +24,7 @@ export type FileWithPreview = {
   preview?: string;
 };
 export type FileUploadOptions = {
+  /** Maximum file count in multiple mode. Single mode always allows one replacement. */
   maxFiles?: number;
   maxSize?: number;
   accept?: string;

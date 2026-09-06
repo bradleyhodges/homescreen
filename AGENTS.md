@@ -1,98 +1,80 @@
 # AGENTS.md
 
-# Repository-Specific Instructions
-
 ## Project layout
 
-- `app`: main web application.
-- `packages/analytics`: analytics utilities.
-- `packages/auth`: authentication utilities.
-- `packages/design-system`: shared design system parts for the repository - components, hooks, utils, etc.
-- `packages/next-config`: shared next.js configuration for all apps.
-- `packages/typescript-config`: shared TypeScript configuration for the repository.
-- `stores`: zustand store configurations
-- `workers`: source code for Cloudflare workers which support the apps.
-- `scripts`: development and deployment utility scripts for the repository.
+- `apps/web/app`: Next.js App Router pages, root layout, client provider boundary, auth callback and route error UI.
+- `apps/web/components`: application-specific UI. Put future app-only utilities in `apps/web/lib` and hooks in `apps/web/hooks` when needed.
+- `packages/components/ui`: current shadcn Base UI / Nova source. Reuse these components before adding new ones.
+- `packages/components/hooks`: reusable browser hooks; keep lifecycle cleanup and tests together.
+- `packages/components/lib`: shared utilities.
+- `packages/components/styles/globals.css`: Tailwind v4 theme and source detection.
+- `packages/home-assistant/src`: browser authentication, connection ownership, entity streaming, selector hooks and tests.
+- `packages/next-config`: shared Next.js configuration and bundle analyzer.
+- `packages/typescript-config`: strict shared TypeScript configurations.
+- `docs`: architecture/migration decisions.
+- `.github/workflows`: CI checks.
 
-## Commands
+There are no analytics, database, auth-server or worker packages. Do not invent infrastructure to match another project's layout.
 
-- Install dependencies with `pnpm install`.
-- Run formatting with `pnpm format`.
+## Documentation
 
-## Repository-specific rules
+Use Context7 MCP for current library/framework/SDK/API/CLI/cloud documentation before changing library-specific setup or behavior. Start with resolve-library-id, select the relevant official/high-quality match, then query-docs using the full question. Skip resolution only when the user provides the exact library ID. General business logic, refactoring and code review do not require documentation queries.
 
-- Use existing UI components before creating new ones. Avoid using the packages/design-system/components/ui/legacy components - we are moving away from the legacy components. All others are acceptable.
-- Do not add production dependencies without justification.
-- Do not modify database schema without adding or updating the corresponding migration.
-- Commit each major coherent change using Conventional Commits in accordance with the below instructions.
+## Workspace and commands
 
-## Repository Contribution Instructions
+Use Node.js 24 and the pnpm version pinned in root package.json. Run commands from the repository root:
 
-These instructions apply to all automated coding agents working in this repository, including Codex and similar agentic development tools.
+- `pnpm install --frozen-lockfile`: reproduce dependencies.
+- `pnpm dev`: start the app through Turbo.
+- `pnpm format` / `pnpm format:check`: write/verify Prettier formatting.
+- `pnpm lint`: ESLint with no warnings.
+- `pnpm typecheck`: all workspace TypeScript checks and Next route type generation.
+- `pnpm test`: Vitest regression tests.
+- `pnpm check`: format, lint, typecheck and tests.
+- `pnpm build`: production Next build.
+- `pnpm start`: serve the production build.
+- `pnpm ui:add <component>`: use installed shadcn CLI in the shared components package.
 
-## Git Commit Expectations
+Use pnpm-workspace.yaml and real package exports. App-local aliases use `@/...`. Shared imports use paths such as `@repo/components/ui/button` and `@repo/home-assistant/hooks`. Avoid broad root aliases or barrels that blur server/client boundaries.
 
-After each major change, the agent must commit the completed changes to the GitHub repository.
+Shared packages export source. Next transpiles them; do not add tsup or duplicate package watchers without a separate distribution requirement. Keep Turbo inputs/environment/output declarations correct when adding tasks or public build-time values.
 
-A “major change” includes, but is not limited to:
+## Engineering rules
 
-- Adding, removing, or materially changing application functionality.
-- Refactoring a meaningful area of the codebase.
-- Updating configuration, build tooling, deployment logic, or package structure.
-- Adding or materially changing tests.
-- Implementing a requested feature, fix, or task milestone.
+- Inspect existing code and preserve conventions. Keep changes coherent, complete, strongly typed and minimal.
+- Verify schema, API and SDK assumptions against code, types, current documentation or tests.
+- Do not add production dependencies without justification. The lint toolchain's TypeScript/ESLint compatibility pins are documented in README; upgrade the compatible graph together.
+- Use existing UI components, semantic tokens, accessible labels and visible focus states. Include meaningful loading, error, disabled and empty states.
+- Use Server Components by default. Add `"use client"` to browser hooks/providers and interactive entry points.
+- Review shadcn output and dependency changes; the registry can introduce imports requiring explicit dependencies. Keep components.json aliases and Tailwind source paths correct.
+- No placeholders, production mocks, debug logging, swallowed failures or unfinished hooks.
+- Add JSDoc to exported utilities and explain non-obvious ownership/concurrency decisions.
+- Add or update tests for lifecycle, security, permissions, transformations and failure behavior. Do not merely mirror implementation.
+- Run relevant checks before claiming completion. Report exact failures or unavailable validation honestly.
+- If persistence/schema is introduced, include the corresponding migration.
 
-Minor exploratory edits, temporary debugging changes, or work-in-progress changes do not need to be committed until they form part of a coherent completed change.
+## Home Assistant boundaries
 
-## Commit Message Format
+- Keep one provider per app and one owned connection per provider. Home Assistant data stays in the browser.
+- Do not log tokens, put credentials in NEXT_PUBLIC variables, persist the full connection/store or clear unrelated browser storage.
+- Validate callback state before the SDK can consume query parameters on any route. Scope tokens to this application, instance and browser client.
+- Test StrictMode, stale async work, logout during reconnect, socket handshake timeout, entity removals across reconnect and subscription rejection.
+- Preserve the SDK's reconnect policy. Never automatically retry service calls: a lost result does not prove the action failed.
+- Prefer narrow entity selectors; do not subscribe whole dashboards to all changing entities.
+- Never use real device actions for test assertions without explicit user authorization.
+- Client checks are not backend authorization. Any future server routes must enforce their own auth and ownership.
 
-All commits must use the Conventional Commits format:
+## Git discipline
 
-```text
-<type>(<scope>): <brief description>
-```
-
-Examples:
-
-```text
-feat(app): add user invitation flow
-fix(packages/design-system): tidy up broken component
-refactor(app): simplify role permission checks
-chore(repo): update dependency lockfile
-docs(repo): update local development instructions
-```
-
-## Scoping Rules
-
-Where a change only affects a particular app, package, service, or logical area, the commit message must include an appropriate scope.
-
-For example:
-
-```text
-feat(app): add dashboard activity feed
-fix(packages/design-system): prevent modal focus trap regression
-chore(infra): update docker compose healthchecks
-```
-
-If a change is repository-wide and no narrower scope is appropriate, use a broad scope such as:
+After each major coherent change, create a Conventional Commit:
 
 ```text
-chore(repo): update workspace configuration
-refactor(repo): standardise linting rules
+feat(app): add connection setup
+fix(home-assistant): close stale sockets after logout
+refactor(components): consolidate shared hooks
+chore(repo): update workspace tooling
 ```
 
-## Commit Hygiene
+Use the affected app/package/subsystem as scope. Keep temporary files, unrelated changes and failed experiments out of commits. Inspect staged changes and run applicable validation. Do not leave completed major work uncommitted. Push, deployment and public release require user authorization.
 
-Before committing, the agent should make reasonable efforts to ensure that:
-
-- The change is complete and coherent.
-- Formatting has been applied where applicable.
-- Relevant tests, type checks, or lint checks have been run where practical.
-- Temporary files, debug statements, and unrelated edits are not included.
-- The commit contains only the files relevant to the completed change.
-
-## Agent Behaviour
-
-Agents should treat committing as part of the normal completion process for substantial repository changes.
-
-Unless explicitly instructed otherwise, agents should not leave completed major changes uncommitted.
+Before public redistribution, resolve the inherited license status documented in README; do not invent rights to copied code/assets or rewrite history unasked.
