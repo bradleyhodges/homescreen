@@ -1,0 +1,370 @@
+import type { HassEntity } from "@repo/home-assistant";
+
+export interface SampleAccessory {
+    entity: HassEntity;
+    room: string;
+    featured: boolean;
+}
+
+/** Explicit preview fixtures. These records never enter the live Home Assistant store. */
+function sample(
+    id: string,
+    name: string,
+    state: string,
+    attributes: Record<string, unknown>,
+    room = "Controls studio",
+    featured = false,
+): SampleAccessory {
+    return {
+        room,
+        featured,
+        entity: {
+            entity_id: id,
+            state,
+            attributes: { friendly_name: name, ...attributes },
+            last_changed: "2026-01-01T12:00:00.000Z",
+            last_updated: "2026-01-01T12:00:00.000Z",
+            context: { id: "sample-home", user_id: null, parent_id: null },
+        },
+    };
+}
+
+export const SAMPLE_HOME: readonly SampleAccessory[] = [
+    sample(
+        "light.floor_lamp",
+        "Floor lamp",
+        "on",
+        {
+            brightness: 191,
+            supported_color_modes: ["hs", "color_temp"],
+            rgb_color: [255, 204, 137],
+            color_temp_kelvin: 2700,
+            min_color_temp_kelvin: 2000,
+            max_color_temp_kelvin: 6500,
+        },
+        "Living room",
+        true,
+    ),
+    sample(
+        "light.bookshelf",
+        "Bookshelf",
+        "on",
+        { brightness: 102, supported_color_modes: ["brightness"] },
+        "Living room",
+        true,
+    ),
+    sample(
+        "media_player.living_room",
+        "Living room speaker",
+        "playing",
+        {
+            supported_features: 510397,
+            volume_level: 0.35,
+            is_volume_muted: false,
+            media_title: "A quiet kind of evening",
+            media_artist: "Sample radio",
+            source: "Radio",
+            source_list: ["Radio", "Bluetooth", "Line in"],
+            sound_mode: "Music",
+            sound_mode_list: ["Music", "Movie"],
+            shuffle: false,
+            repeat: "off",
+        },
+        "Living room",
+        true,
+    ),
+    sample(
+        "cover.living_room",
+        "Window shades",
+        "open",
+        {
+            supported_features: 255,
+            current_position: 65,
+            current_tilt_position: 50,
+            device_class: "shade",
+        },
+        "Living room",
+        true,
+    ),
+    sample(
+        "sensor.living_temperature",
+        "Room temperature",
+        "22.4",
+        { unit_of_measurement: "°C", device_class: "temperature" },
+        "Living room",
+        true,
+    ),
+    sample(
+        "light.pendants",
+        "Pendant lights",
+        "on",
+        { brightness: 220, supported_color_modes: ["brightness"] },
+        "Kitchen",
+        true,
+    ),
+    sample(
+        "switch.coffee_machine",
+        "Coffee machine",
+        "off",
+        {},
+        "Kitchen",
+        true,
+    ),
+    sample(
+        "sensor.kitchen_humidity",
+        "Humidity",
+        "46",
+        { unit_of_measurement: "%", device_class: "humidity" },
+        "Kitchen",
+        true,
+    ),
+    sample(
+        "binary_sensor.kitchen_window",
+        "Kitchen window",
+        "off",
+        { device_class: "window" },
+        "Kitchen",
+        true,
+    ),
+    sample(
+        "light.bedside",
+        "Bedside lamp",
+        "off",
+        {
+            brightness: 128,
+            supported_color_modes: ["color_temp"],
+            color_temp_kelvin: 2700,
+            min_color_temp_kelvin: 2000,
+            max_color_temp_kelvin: 6500,
+        },
+        "Bedroom",
+        true,
+    ),
+    sample(
+        "climate.bedroom",
+        "Bedroom climate",
+        "cool",
+        {
+            supported_features: 441,
+            current_temperature: 22.4,
+            temperature: 21,
+            min_temp: 16,
+            max_temp: 30,
+            target_temp_step: 0.5,
+            hvac_modes: ["off", "heat", "cool", "auto"],
+            fan_mode: "auto",
+            fan_modes: ["auto", "low", "high"],
+            preset_mode: "comfort",
+            preset_modes: ["comfort", "eco", "sleep"],
+            swing_mode: "off",
+            swing_modes: ["off", "vertical"],
+        },
+        "Bedroom",
+        true,
+    ),
+    sample(
+        "fan.bedroom",
+        "Ceiling fan",
+        "off",
+        {
+            supported_features: 63,
+            percentage: 40,
+            percentage_step: 1,
+            oscillating: false,
+            direction: "forward",
+            preset_mode: "normal",
+            preset_modes: ["normal", "sleep", "breeze"],
+        },
+        "Bedroom",
+        true,
+    ),
+    sample(
+        "scene.good_night",
+        "Good night",
+        "2026-01-01T12:00:00+00:00",
+        {},
+        "Bedroom",
+        true,
+    ),
+    sample(
+        "lock.front_door",
+        "Front door",
+        "locked",
+        { supported_features: 1 },
+        "Entrance",
+        true,
+    ),
+    sample(
+        "light.porch",
+        "Porch light",
+        "off",
+        { supported_color_modes: ["onoff"] },
+        "Entrance",
+        true,
+    ),
+    sample(
+        "binary_sensor.front_motion",
+        "Motion sensor",
+        "off",
+        { device_class: "motion" },
+        "Entrance",
+        true,
+    ),
+    sample(
+        "camera.front_door",
+        "Doorbell camera",
+        "idle",
+        { supported_features: 3 },
+        "Entrance",
+        true,
+    ),
+    sample("vacuum.robot", "Robot vacuum", "docked", {
+        supported_features: 9788,
+        battery_level: 94,
+        fan_speed: "balanced",
+        fan_speed_list: ["quiet", "balanced", "turbo"],
+    }),
+    sample("humidifier.air", "Air humidifier", "on", {
+        supported_features: 1,
+        humidity: 50,
+        min_humidity: 30,
+        max_humidity: 80,
+        mode: "normal",
+        available_modes: ["normal", "eco", "sleep"],
+    }),
+    sample("water_heater.hot_water", "Hot water", "eco", {
+        supported_features: 7,
+        temperature: 55,
+        min_temp: 40,
+        max_temp: 70,
+        current_temperature: 54,
+        operation_mode: "eco",
+        operation_list: ["off", "eco", "performance"],
+        away_mode: "off",
+    }),
+    sample("alarm_control_panel.home", "Home alarm", "disarmed", {
+        supported_features: 63,
+        code_format: "number",
+        code_arm_required: true,
+    }),
+    sample("lawn_mower.garden", "Garden mower", "docked", {
+        supported_features: 7,
+    }),
+    sample("valve.garden", "Garden water valve", "closed", {
+        supported_features: 15,
+        current_position: 0,
+    }),
+    sample("siren.outdoor", "Outdoor siren", "off", { supported_features: 3 }),
+    sample("remote.television", "TV remote", "off", {
+        supported_features: 4,
+        current_activity: "Television",
+        activity_list: ["Television", "Music", "Game console"],
+    }),
+    sample("script.welcome_home", "Welcome home", "off", {}),
+    sample(
+        "button.garden",
+        "Water the garden",
+        "2026-01-01T12:00:00+00:00",
+        {},
+    ),
+    sample(
+        "input_button.doorbell",
+        "Sample doorbell",
+        "2026-01-01T12:00:00+00:00",
+        {},
+    ),
+    sample("automation.porch", "Porch at sunset", "on", {
+        last_triggered: "2026-01-01T12:00:00+00:00",
+    }),
+    sample("input_boolean.guest_mode", "Guest mode", "off", {}),
+    sample("number.speaker_limit", "Speaker volume limit", "70", {
+        min: 0,
+        max: 100,
+        step: 1,
+        unit_of_measurement: "%",
+    }),
+    sample("input_number.watering", "Watering duration", "10", {
+        min: 1,
+        max: 30,
+        step: 1,
+        unit_of_measurement: "min",
+    }),
+    sample("select.cleaning", "Cleaning mode", "Balanced", {
+        options: ["Quiet", "Balanced", "Deep clean"],
+    }),
+    sample("input_select.house", "House mode", "Home", {
+        options: ["Home", "Away", "Holiday"],
+    }),
+    sample("text.greeting", "Welcome message", "Welcome home", {
+        min: 1,
+        max: 80,
+    }),
+    sample("input_text.note", "Household note", "Plants watered today", {
+        min: 0,
+        max: 120,
+        mode: "text",
+    }),
+    sample("date.filter", "Filter replacement", "2026-10-01", {}),
+    sample("time.bedtime", "Bedtime", "22:30:00", {}),
+    sample("datetime.visitor", "Next visitor", "2026-10-01T15:00:00", {}),
+    sample("input_datetime.wake_up", "Morning routine", "07:00:00", {
+        has_time: true,
+        has_date: false,
+    }),
+    sample("counter.coffee", "Coffees this week", "4", {
+        initial: 0,
+        step: 1,
+        minimum: 0,
+        maximum: 100,
+    }),
+    sample("timer.tea", "Tea timer", "idle", {
+        duration: "0:03:00",
+        remaining: "0:03:00",
+    }),
+    sample("update.bridge", "Bridge update", "on", {
+        supported_features: 1,
+        installed_version: "1.2.0",
+        latest_version: "1.3.0",
+        in_progress: false,
+    }),
+    sample("weather.home", "Weather", "sunny", {
+        temperature: 24,
+        temperature_unit: "°C",
+        humidity: 46,
+        wind_speed: 8,
+        wind_speed_unit: "km/h",
+    }),
+    sample("person.alex", "Alex", "home", {}),
+    sample("device_tracker.tablet", "Hallway tablet", "home", {
+        source_type: "router",
+    }),
+    sample("sun.sun", "Sun", "above_horizon", { elevation: 32 }),
+    sample("calendar.household", "Household calendar", "off", {
+        message: "No upcoming events",
+    }),
+    sample("todo.shopping", "Shopping list", "3", {}),
+    sample("event.doorbell", "Doorbell events", "2026-01-01T12:00:00+00:00", {
+        event_type: "pressed",
+        event_types: ["pressed"],
+    }),
+    sample("image.garden", "Garden image", "2026-01-01T12:00:00+00:00", {}),
+    sample("air_quality.living_room", "Air quality", "good", {
+        particulate_matter_2_5: 4,
+    }),
+    sample("conversation.assistant", "Voice assistant", "ready", {}),
+    sample("stt.speech", "Speech recognition", "ready", {}),
+    sample("tts.voice", "Text to speech", "ready", {}),
+    sample("notify.household", "Household notifications", "ready", {}),
+    sample("light.disconnected", "Unavailable light", "unavailable", {
+        supported_color_modes: ["brightness"],
+    }),
+];
+
+export function createSampleEntities(): Record<string, HassEntity> {
+    return Object.fromEntries(
+        SAMPLE_HOME.map(({ entity }) => [
+            entity.entity_id,
+            { ...entity, attributes: { ...entity.attributes } },
+        ]),
+    );
+}

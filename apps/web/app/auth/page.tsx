@@ -1,4 +1,4 @@
-import { ConnectionPanel } from "@/components/connection-panel";
+import { HomeEntry } from "@/components/home/home-entry";
 export default function AuthPage() {
-    return <ConnectionPanel />;
+    return <HomeEntry />;
 }
