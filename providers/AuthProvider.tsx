@@ -21,7 +21,7 @@ const AuthWrapper: React.FunctionComponent = ({ children }) => {
     saveAuthData,
     loadAuthData,
   } = useAuthStore();
-  const auth = useRef<Auth | undefined>();
+  const auth = useRef<Auth | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
   const connect = async (

@@ -8,7 +8,7 @@ const getInstance = async () => {
 }
 
 const useDiscovery = (max?: number) => {
-  const id = useRef<any>();
+  const id = useRef<any>(undefined);
   const [instances, setInstances] = useState<Record<string, HomeAssistantInstance>>({});
   
   const findInstance = async () => {

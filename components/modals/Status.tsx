@@ -11,7 +11,7 @@ const StatusText: Record<ConnectionStatus, string> = {
 
 const Status: React.FunctionComponent = ({}) => {
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const status = useContext(StatusContext);
   const [showModal, setShowModal] = useState(false);
 
