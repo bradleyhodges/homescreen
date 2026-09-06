@@ -15,7 +15,8 @@ class HomeAssistantSocket extends EventTarget {
       if (this.readyState === 3) return;
       this.readyState = 1;
       this.dispatchEvent(new Event("open"));
-      if (HomeAssistantSocket.authenticate) this.receive({ type: "auth_ok", ha_version: "2026.9.0" });
+      if (HomeAssistantSocket.authenticate)
+        this.receive({ type: "auth_ok", ha_version: "2026.9.0" });
     });
   }
   receive(value: unknown) {
@@ -63,7 +64,8 @@ function callback(path: string, nonce = "attacker") {
   );
 }
 beforeEach(() => {
-  HomeAssistantSocket.instances = []; HomeAssistantSocket.authenticate = true;
+  HomeAssistantSocket.instances = [];
+  HomeAssistantSocket.authenticate = true;
   vi.stubGlobal("WebSocket", HomeAssistantSocket);
   vi.stubGlobal("fetch", vi.fn());
 });
@@ -75,17 +77,30 @@ afterEach(() => {
   history.replaceState(null, "", "/");
 });
 
-it.each(["handshaking", "authenticated"])("closes a real SDK reconnect socket when disconnect occurs while %s", async (phase) => {
-  tokens(); const client = createHassClient(); await client.store.getState().connect(hassUrl);
-  await vi.waitFor(() => expect(client.store.getState().status).toBe("connected"));
-  vi.useFakeTimers(); HomeAssistantSocket.authenticate = false;
-  HomeAssistantSocket.instances[0]?.close(); await vi.advanceTimersByTimeAsync(0);
-  const reconnect = HomeAssistantSocket.instances[1]; expect(reconnect).toBeDefined();
-  if (phase === "authenticated") reconnect?.receive({ type: "auth_ok", ha_version: "2026.9.0" });
-  client.store.getState().disconnect(); await vi.advanceTimersByTimeAsync(2_000);
-  expect(reconnect?.readyState).toBe(3); expect(HomeAssistantSocket.instances).toHaveLength(2);
-  expect(client.store.getState().status).toBe("disconnected");
-});
+it.each(["handshaking", "authenticated"])(
+  "closes a real SDK reconnect socket when disconnect occurs while %s",
+  async (phase) => {
+    tokens();
+    const client = createHassClient();
+    await client.store.getState().connect(hassUrl);
+    await vi.waitFor(() =>
+      expect(client.store.getState().status).toBe("connected"),
+    );
+    vi.useFakeTimers();
+    HomeAssistantSocket.authenticate = false;
+    HomeAssistantSocket.instances[0]?.close();
+    await vi.advanceTimersByTimeAsync(0);
+    const reconnect = HomeAssistantSocket.instances[1];
+    expect(reconnect).toBeDefined();
+    if (phase === "authenticated")
+      reconnect?.receive({ type: "auth_ok", ha_version: "2026.9.0" });
+    client.store.getState().disconnect();
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(reconnect?.readyState).toBe(3);
+    expect(HomeAssistantSocket.instances).toHaveLength(2);
+    expect(client.store.getState().status).toBe("disconnected");
+  },
+);
 
 it("rejects unsolicited OAuth parameters on the root route before real SDK token exchange", async () => {
   tokens();
