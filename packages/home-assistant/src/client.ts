@@ -12,6 +12,11 @@ import {
 } from "home-assistant-js-websocket";
 import { createStore } from "zustand/vanilla";
 import { subscribeEntityStream } from "./entities";
+import {
+    EMPTY_REGISTRY,
+    type RegistryState,
+    subscribeRegistry,
+} from "./registry";
 import { openSocket } from "./socket";
 import {
     createTokenStorage,
@@ -50,6 +55,7 @@ export interface HassState {
     error: string | null;
     instanceUrl: string | null;
     entities: HassEntities;
+    registry: RegistryState;
     connect: (url: string) => Promise<void>;
     retry: () => Promise<void>;
     disconnect: () => void;
@@ -107,6 +113,7 @@ export function createHassClient(
         cleanup = undefined;
         connection?.close();
         connection = undefined;
+        store.setState({ registry: EMPTY_REGISTRY });
     }
     function disconnect() {
         close();
@@ -261,9 +268,20 @@ export function createHassClient(
                     });
                 },
             );
+            if (!isCurrent()) {
+                unsubscribe();
+                return;
+            }
+            const unsubscribeRegistry = subscribeRegistry(
+                nextConnection,
+                (registry) => {
+                    if (isCurrent()) store.setState({ registry });
+                },
+            );
             cleanup = () => {
                 removeListeners();
                 unsubscribe();
+                unsubscribeRegistry();
             };
         } catch (error) {
             if (!isCurrent()) return;
@@ -370,6 +388,7 @@ export function createHassClient(
         error: null,
         instanceUrl: null,
         entities: {},
+        registry: EMPTY_REGISTRY,
         connect,
         disconnect,
         logout,

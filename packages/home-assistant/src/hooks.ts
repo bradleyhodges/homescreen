@@ -9,6 +9,13 @@ import { selectDomain, selectEntities, selectQuery } from "./selectors";
 export function useEntity(entityId: string) {
     return useStore(useHassClient().store, (state) => state.entities[entityId]);
 }
+/** Subscribe to entity membership, without rerendering for individual state changes. */
+export function useEntityIds(): string[] {
+    return useStore(
+        useHassClient().store,
+        useShallow((state) => Object.keys(state.entities)),
+    );
+}
 /** Subscribe to all entities, or a list in caller-specified order. Missing IDs are omitted. */
 export function useEntities(entityIds?: readonly string[]) {
     return useStore(
@@ -48,3 +55,8 @@ export function useHass() {
 }
 /** Authentication and connection controls share one source of truth. */
 export const useAuth = useHass;
+
+/** Subscribe to room metadata independently of changing entity states. */
+export function useRegistry() {
+    return useStore(useHassClient().store, (state) => state.registry);
+}

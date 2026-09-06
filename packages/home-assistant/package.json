@@ -4,6 +4,8 @@
     "private": true,
     "type": "module",
     "exports": {
+        "./controls": "./src/controls.ts",
+        "./registry": "./src/registry.ts",
         ".": "./src/index.ts",
         "./provider": "./src/provider.tsx",
         "./hooks": "./src/hooks.ts"

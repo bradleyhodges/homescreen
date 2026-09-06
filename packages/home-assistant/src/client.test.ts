@@ -5,6 +5,7 @@ import type {
 } from "home-assistant-js-websocket";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { type BrowserEnvironment, createHassClient } from "./client";
+import { EMPTY_REGISTRY, type RegistryState } from "./registry";
 import { INSTANCE_KEY, NONCE_KEY, TOKEN_KEY } from "./storage";
 
 const sdk = vi.hoisted(() => ({
@@ -12,6 +13,10 @@ const sdk = vi.hoisted(() => ({
     createConnection: vi.fn(),
     subscribeEntities: vi.fn(),
     callService: vi.fn(),
+    subscribeRegistry: vi.fn(
+        (_connection: Connection, _callback: (state: RegistryState) => void) =>
+            vi.fn(),
+    ),
 }));
 vi.mock("home-assistant-js-websocket", () => ({
     ...sdk,
@@ -20,6 +25,10 @@ vi.mock("home-assistant-js-websocket", () => ({
     ERR_INVALID_AUTH_CALLBACK: 6,
 }));
 vi.mock("./entities", () => ({ subscribeEntityStream: sdk.subscribeEntities }));
+vi.mock("./registry", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("./registry")>()),
+    subscribeRegistry: sdk.subscribeRegistry,
+}));
 
 function deferred<T>() {
     let resolve!: (value: T) => void;
@@ -81,6 +90,31 @@ afterEach(() => {
 });
 
 describe("connection ownership", () => {
+    it("keeps registry failures optional and clears metadata on disconnect", async () => {
+        sdk.createConnection.mockResolvedValue(connection().value);
+        let emit!: (state: RegistryState) => void;
+        const cleanup = vi.fn();
+        sdk.subscribeRegistry.mockImplementationOnce(
+            (_connection, callback) => {
+                emit = callback;
+                callback({
+                    ...EMPTY_REGISTRY,
+                    status: "error",
+                    error: "Unavailable",
+                });
+                return cleanup;
+            },
+        );
+        const { env } = environment();
+        const client = createHassClient(() => env);
+        await client.store.getState().connect("https://home.example");
+        expect(client.store.getState().status).toBe("connected");
+        expect(client.store.getState().registry.status).toBe("error");
+        client.store.getState().disconnect();
+        expect(cleanup).toHaveBeenCalledOnce();
+        emit({ ...EMPTY_REGISTRY, status: "ready" });
+        expect(client.store.getState().registry).toBe(EMPTY_REGISTRY);
+    });
     it("treats a plain auth route as an ordinary disconnected page", async () => {
         const { env } = environment();
         env.url = new URL("https://app.example/auth");
