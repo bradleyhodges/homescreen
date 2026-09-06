@@ -17,11 +17,13 @@
         "lint": "biome check . --config-path ./biome.json",
         "format": "node scripts/format-tailwind/index.cjs",
         "format:biome": "biome check . --write --skip-parse-errors --config-path ./biome.json",
+        "format:check": "biome format . --config-path ./biome.json",
         "test": "vitest run",
         "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
         "ui:add": "pnpm --filter @repo/components exec shadcn add"
     },
     "devDependencies": {
+        "sharp": "^0.35.4",
         "@testing-library/react": "16.3.3",
         "@biomejs/biome": "2.5.0",
         "@types/node": "^24.0.0",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "@repo/components/globals.css";
+import "@repo/components/home.css";
 import { Providers } from "./providers";
 export const metadata: Metadata = {
     title: "Homescreen",

@@ -1,9 +1,14 @@
+"use client";
+
+import { sfArrowTrianglehead2ClockwiseRotate90 } from "@bradleyhodges/sfsymbols";
+import { SFIcon } from "@bradleyhodges/sfsymbols-react";
 import { cn } from "@repo/components/lib/utils";
-import { Loader2Icon } from "lucide-react";
 
 function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
     return (
-        <Loader2Icon
+        <SFIcon
+            icon={sfArrowTrianglehead2ClockwiseRotate90}
+            size={16}
             data-slot="spinner"
             role="status"
             aria-label="Loading"

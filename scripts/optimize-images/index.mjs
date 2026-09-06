@@ -34,12 +34,9 @@ const supportedExtensions = new Set([
     ".avif",
 ]);
 const defaultScopes = [
-    "apps/api/app",
-    "apps/www/app",
-    "apps/www/public",
-    "apps/portal/app",
-    "apps/portal/public",
-    "packages/design-system/branding",
+    "apps/web/app",
+    "apps/web/public",
+    "packages/components",
 ];
 
 const optimizerPolicy = {

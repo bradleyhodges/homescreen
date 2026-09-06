@@ -1,11 +1,16 @@
 "use client";
 
 import {
+    sfCheckmark,
+    sfDocumentOnDocument,
+    sfXmarkCircle,
+} from "@bradleyhodges/sfsymbols";
+import { SFIcon } from "@bradleyhodges/sfsymbols-react";
+import {
     type CopyState,
     useCopyToClipboard,
 } from "@repo/components/hooks/use-copy-to-clipboard";
 import { Button } from "@repo/components/ui/button";
-import { Check, CircleX, Copy } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 export type CopyStateIconProps = {
@@ -25,10 +30,28 @@ export function CopyStateIcon({
     return (
         <span aria-hidden="true">
             {state === "done"
-                ? (doneIcon ?? <Check data-slot="done-icon" />)
+                ? (doneIcon ?? (
+                      <SFIcon
+                          icon={sfCheckmark}
+                          size={16}
+                          data-slot="done-icon"
+                      />
+                  ))
                 : state === "error"
-                  ? (errorIcon ?? <CircleX data-slot="error-icon" />)
-                  : (idleIcon ?? <Copy data-slot="idle-icon" />)}
+                  ? (errorIcon ?? (
+                        <SFIcon
+                            icon={sfXmarkCircle}
+                            size={16}
+                            data-slot="error-icon"
+                        />
+                    ))
+                  : (idleIcon ?? (
+                        <SFIcon
+                            icon={sfDocumentOnDocument}
+                            size={16}
+                            data-slot="idle-icon"
+                        />
+                    ))}
         </span>
     );
 }

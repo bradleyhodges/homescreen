@@ -23,7 +23,9 @@ describe("useFileUpload", () => {
         act(() => result.current[1].addFiles([file]));
         act(() => result.current[1].addFiles([file]));
         expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:1");
-        act(() => result.current[1].removeFile(result.current[0].files[0]?.id));
+        const uploaded = result.current[0].files[0];
+        if (!uploaded) throw new Error("Expected the uploaded file.");
+        act(() => result.current[1].removeFile(uploaded.id));
         expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:2");
         act(() => result.current[1].addFiles([file]));
         act(() => result.current[1].clearFiles());
