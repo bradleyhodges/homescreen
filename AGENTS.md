@@ -5,9 +5,12 @@
 - `apps/web/app`: Next.js App Router pages, root layout, client provider boundary, auth callback and route error UI.
 - `apps/web/components`: application-specific UI. Put future app-only utilities in `apps/web/lib` and hooks in `apps/web/hooks` when needed.
 - `packages/components/ui`: current shadcn Base UI / Nova source. Reuse these components before adding new ones.
+- `packages/components/home`: reusable capability-aware accessory tiles, modal sheets, touch inputs and SF Symbols. Command transport is injected.
+- `apps/web/components/home`: live room dashboard, search, pagination, plus isolated sample fixtures and adapter used only by `/preview`.
 - `packages/components/hooks`: reusable browser hooks; keep lifecycle cleanup and tests together.
 - `packages/components/lib`: shared utilities.
 - `packages/components/styles/globals.css`: Tailwind v4 theme and source detection.
+- `packages/components/styles/home.css`: accessory surfaces, interaction sizing and reduced-motion-aware sheets.
 - `packages/home-assistant/src`: browser authentication, connection ownership, entity streaming, selector hooks and tests.
 - `packages/next-config`: shared Next.js configuration and bundle analyzer.
 - `packages/typescript-config`: strict shared TypeScript configurations.
@@ -26,8 +29,9 @@ Use Node.js 24 and the pnpm version pinned in root package.json. Run commands fr
 
 - `pnpm install --frozen-lockfile`: reproduce dependencies.
 - `pnpm dev`: start the app through Turbo.
-- `pnpm format` / `pnpm format:check`: write/verify Prettier formatting.
-- `pnpm lint`: ESLint with no warnings.
+- `pnpm format`: project Tailwind/Prettier formatting script; `pnpm format:biome` applies Biome formatting/lint fixes.
+- `pnpm format:check`: verify Biome formatting.
+- `pnpm lint`: Biome formatting and lint checks.
 - `pnpm typecheck`: all workspace TypeScript checks and Next route type generation.
 - `pnpm test`: Vitest regression tests.
 - `pnpm check`: format, lint, typecheck and tests.
@@ -45,6 +49,7 @@ Shared packages export source. Next transpiles them; do not add tsup or duplicat
 - Verify schema, API and SDK assumptions against code, types, current documentation or tests.
 - Do not add production dependencies without justification. The lint toolchain's TypeScript/ESLint compatibility pins are documented in README; upgrade the compatible graph together.
 - Use existing UI components, semantic tokens, accessible labels and visible focus states. Include meaningful loading, error, disabled and empty states.
+- Prefer `@bradleyhodges/sfsymbols` rendered with `@bradleyhodges/sfsymbols-react`. Use Tabler only when no suitable SF Symbol exists; do not add Lucide. shadcn's generator fallback is Tabler; review generated icons. Follow the upstream icon license terms for intended distribution.
 - Use Server Components by default. Add `"use client"` to browser hooks/providers and interactive entry points.
 - Review shadcn output and dependency changes; the registry can introduce imports requiring explicit dependencies. Keep components.json aliases and Tailwind source paths correct.
 - No placeholders, production mocks, debug logging, swallowed failures or unfinished hooks.
@@ -61,6 +66,9 @@ Shared packages export source. Next transpiles them; do not add tsup or duplicat
 - Test StrictMode, stale async work, logout during reconnect, socket handshake timeout, entity removals across reconnect and subscription rejection.
 - Preserve the SDK's reconnect policy. Never automatically retry service calls: a lost result does not prove the action failed.
 - Prefer narrow entity selectors; do not subscribe whole dashboards to all changing entities.
+- Keep `/preview` outside the live provider. Sample fixtures never enter the live store or invoke real services.
+- Build commands from current capabilities, require consequential-action confirmation, keep PINs transient, and commit slider changes only on release/keyboard commit. Never fabricate success state from a service acknowledgement.
+- Registry failures must not break the entity stream. Room lookup honors entity overrides, inherited device areas and hidden/disabled entries.
 - Never use real device actions for test assertions without explicit user authorization.
 - Client checks are not backend authorization. Any future server routes must enforce their own auth and ownership.
 

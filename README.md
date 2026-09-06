@@ -1,6 +1,6 @@
 # Homescreen
 
-A Next.js App Router starting point for building a Home Assistant interface. The only screen is connection setup; add your own dashboard once connected.
+A Next.js App Router starting point for building a Home Assistant interface, with an Apple Home-inspired room dashboard and reusable, touch-friendly accessory controls. Explore `/preview` without connecting a real home. See [the control guide](docs/home-controls.md) for coverage, extension points and interaction behavior.
 
 ## Quick start
 
@@ -21,10 +21,11 @@ Optionally copy `apps/web/.env.example` to `apps/web/.env.local` and set `NEXT_P
 ```text
 apps/web/
   app/                 App Router layout, pages, callback and error boundary
-  components/          Application-specific connection screen
+  components/          Connection screen, live room dashboard and isolated sample home
 packages/
   components/
     ui/                Generated shadcn components (Base UI / Nova)
+    home/              Capability-aware accessory tiles, sheets, inputs and SF Symbols
     hooks/             Clipboard, file selection and mobile breakpoint hooks
     lib/               Shared class-name and string utilities
     styles/            Tailwind v4 entry point and theme tokens
@@ -48,11 +49,13 @@ Shared packages export TypeScript source, compiled by Next's `transpilePackages`
 
 ## Home Assistant usage
 
-`apps/web/app/providers.tsx` mounts one `HassProvider` above all routes. Components using its hooks must be Client Components.
+`apps/web/app/providers.tsx` mounts one `HassProvider` above live routes. The isolated `/preview` route does not mount it. Components using its hooks must be Client Components.
 
 | Hook                      | Returns                                                                 |
 | ------------------------- | ----------------------------------------------------------------------- |
 | `useEntity(id)`           | One entity, or `undefined`; unrelated entity updates do not rerender it |
+| `useEntityIds()`          | Entity membership without rerenders for individual state changes       |
+| `useRegistry()`           | Optional room, device and entity registry metadata and availability    |
 | `useEntities(ids?)`       | All entities or the requested subset; missing IDs are omitted           |
 | `useDomain(domain)`       | Entities in the exact domain, such as `light`                           |
 | `useQuery(query)`         | Case-insensitive substring matches on ID or friendly name               |
@@ -154,7 +157,7 @@ pnpm check
 pnpm build
 ```
 
-`pnpm check` runs format verification, ESLint, workspace typechecks and Vitest. Tests use mocked transport only inside tests and need no live credentials. CI runs the same checks and a production build on Linux and Windows.
+`pnpm check` runs Biome format/lint verification, workspace typechecks and Vitest. Tests use mocked transport only inside tests and need no live credentials. The explicit sample route uses a separate local simulator. CI runs the same checks and a production build on Linux and Windows.
 
 Next.js 16.3.4 and React 19.2.8 are pinned. TypeScript 6.0.3 and ESLint 9.39.5 are compatibility pins: the current Next lint plugin graph does not yet declare support for TypeScript 7 / ESLint 10. Revisit these together when the upstream plugins support them; ESLint 9 is now marked deprecated by its publisher. Avoid suppressing peer requirements to force an upgrade.
 
