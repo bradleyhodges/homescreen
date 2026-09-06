@@ -1,45 +1,45 @@
 {
-  "name": "homescreen",
-  "version": "0.1.0",
-  "private": true,
-  "packageManager": "pnpm@11.6.0",
-  "engines": {
-    "node": ">=24.0.0 <25",
-    "pnpm": ">=11.6.0 <12"
-  },
-  "scripts": {
-    "dev": "turbo run dev",
-    "build": "pnpm run images:optimize && turbo build",
-    "start": "pnpm --filter @repo/web start",
-    "images:optimize": "node scripts/optimize-images/index.mjs",
-    "images:check": "node scripts/optimize-images/index.mjs --check",
-    "typecheck": "turbo run typecheck",
-    "lint": "biome check . --config-path ./biome.json",
-    "format": "node scripts/format-tailwind/index.cjs",
-    "format:biome": "biome check . --write --skip-parse-errors --config-path ./biome.json",
-    "test": "vitest run",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
-    "ui:add": "pnpm --filter @repo/components exec shadcn add"
-  },
-  "devDependencies": {
-    "@testing-library/react": "16.3.3",
-    "@biomejs/biome": "2.5.0",
-    "@types/node": "^24.0.0",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.7",
-    "@total-typescript/ts-reset": "^0.6.1",
-    "eslint": "^9.39.0",
-    "eslint-config-next": "16.3.4",
-    "jsdom": "30.0.1",
-    "prettier": "3.9.6",
-    "portless": "^0.14.0",
-    "prettier-plugin-tailwindcss": "^0.8.0",
-    "prettier-plugin-tailwindcss-canonical-classes": "^0.1.5",
-    "react-doctor": "^0.5.8",
-    "semantic-release": "^25.0.5",
-    "turbo": "2.10.12",
-    "typescript": "6.0.3",
-    "vitest": "5.0.0"
-  },
-  "type": "module"
+    "name": "homescreen",
+    "version": "0.1.0",
+    "private": true,
+    "packageManager": "pnpm@11.6.0",
+    "engines": {
+        "node": ">=24.0.0 <25",
+        "pnpm": ">=11.6.0 <12"
+    },
+    "scripts": {
+        "dev": "turbo run dev",
+        "build": "pnpm run images:optimize && turbo build",
+        "start": "pnpm --filter @repo/web start",
+        "images:optimize": "node scripts/optimize-images/index.mjs",
+        "images:check": "node scripts/optimize-images/index.mjs --check",
+        "typecheck": "turbo run typecheck",
+        "lint": "biome check . --config-path ./biome.json",
+        "format": "node scripts/format-tailwind/index.cjs",
+        "format:biome": "biome check . --write --skip-parse-errors --config-path ./biome.json",
+        "test": "vitest run",
+        "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
+        "ui:add": "pnpm --filter @repo/components exec shadcn add"
+    },
+    "devDependencies": {
+        "@testing-library/react": "16.3.3",
+        "@biomejs/biome": "2.5.0",
+        "@types/node": "^24.0.0",
+        "@types/react": "19.2.18",
+        "@types/react-dom": "19.2.7",
+        "@total-typescript/ts-reset": "^0.6.1",
+        "eslint": "^9.39.0",
+        "eslint-config-next": "16.3.4",
+        "jsdom": "30.0.1",
+        "prettier": "3.9.6",
+        "portless": "^0.14.0",
+        "prettier-plugin-tailwindcss": "^0.8.0",
+        "prettier-plugin-tailwindcss-canonical-classes": "^0.1.5",
+        "react-doctor": "^0.5.8",
+        "semantic-release": "^25.0.5",
+        "turbo": "2.10.12",
+        "typescript": "6.0.3",
+        "vitest": "5.0.0"
+    },
+    "type": "module"
 }

@@ -1,30 +1,30 @@
 {
-  "name": "@repo/web",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "typecheck": "next typegen && tsc --noEmit"
-  },
-  "dependencies": {
-    "@bradleyhodges/sfsymbols": "^7.0.4",
-    "@bradleyhodges/sfsymbols-react": "^7.0.4",
-    "@bradleyhodges/sfsymbols-types": "^7.0.4",
-    "@repo/components": "workspace:*",
-    "@repo/home-assistant": "workspace:*",
-    "@repo/next-config": "workspace:*",
-    "next": "16.3.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
-  },
-  "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "@tailwindcss/postcss": "4.3.3",
-    "postcss": "8.5.28",
-    "sharp": "^0.35.4",
-    "tailwindcss": "4.3.3",
-    "typescript": "6.0.3"
-  }
+    "name": "@repo/web",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "typecheck": "next typegen && tsc --noEmit"
+    },
+    "dependencies": {
+        "@bradleyhodges/sfsymbols": "^7.0.4",
+        "@bradleyhodges/sfsymbols-react": "^7.0.4",
+        "@bradleyhodges/sfsymbols-types": "^7.0.4",
+        "@repo/components": "workspace:*",
+        "@repo/home-assistant": "workspace:*",
+        "@repo/next-config": "workspace:*",
+        "next": "16.3.4",
+        "react": "19.2.8",
+        "react-dom": "19.2.8"
+    },
+    "devDependencies": {
+        "@repo/typescript-config": "workspace:*",
+        "@tailwindcss/postcss": "4.3.3",
+        "postcss": "8.5.28",
+        "sharp": "^0.35.4",
+        "tailwindcss": "4.3.3",
+        "typescript": "6.0.3"
+    }
 }
