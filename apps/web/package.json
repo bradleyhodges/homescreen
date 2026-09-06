@@ -9,17 +9,21 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@bradleyhodges/sfsymbols": "^7.0.4",
+    "@bradleyhodges/sfsymbols-react": "^7.0.4",
+    "@bradleyhodges/sfsymbols-types": "^7.0.4",
+    "@repo/components": "workspace:*",
+    "@repo/home-assistant": "workspace:*",
     "@repo/next-config": "workspace:*",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "@repo/components": "workspace:*"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "typescript": "6.0.3",
     "@tailwindcss/postcss": "4.3.3",
+    "postcss": "8.5.28",
     "tailwindcss": "4.3.3",
-    "postcss": "8.5.28"
+    "typescript": "6.0.3"
   }
 }
